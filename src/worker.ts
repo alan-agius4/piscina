@@ -54,7 +54,12 @@ async function getHandler (filename : string, name : string) : Promise<Function 
     if (typeof handler !== 'function') {
       handler = await ((handler as any)[name]);
     }
-  } catch {}
+  } catch (error) {
+    if ((error as Error & {code? : string}).code !== 'MODULE_NOT_FOUND') {
+      throw error;
+    }
+  }
+
   if (typeof handler !== 'function') {
     handler = await getImportESM()(pathToFileURL(filename).href);
     if (typeof handler !== 'function') {
